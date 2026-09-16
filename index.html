@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#197a4a">
+  <meta name="description" content="EcoLight: acompanhe o consumo e os gastos de energia da sua casa.">
+  <title>EcoLight | Consumo de energia</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="app-header">
+    <div class="container header-content">
+      <a class="brand" href="#dashboard" aria-label="EcoLight, ir para o início">
+        <span class="brand-mark" aria-hidden="true">☀</span>
+        <span>EcoLight</span>
+      </a>
+      <p class="header-subtitle">Energia na medida certa</p>
+    </div>
+  </header>
+
+  <main class="container app-main">
+    <div id="live-region" class="sr-only" role="status" aria-live="polite"></div>
+
+    <section id="dashboard" class="app-section" aria-labelledby="dashboard-title">
+      <div class="section-heading">
+        <p class="eyebrow">Visão geral</p>
+        <h1 id="dashboard-title">Olá! Vamos cuidar da energia?</h1>
+        <p class="intro-text">Veja seus dados e registre a conta deste mês.</p>
+      </div>
+
+      <div class="dashboard-grid">
+        <article class="info-card tariff-card">
+          <div class="card-icon" aria-hidden="true">⚡</div>
+          <div>
+            <h2>Bandeira tarifária</h2>
+            <p id="tariff-name" class="card-value">Carregando...</p>
+            <p id="tariff-description" class="card-description">Consultando a configuração atual.</p>
+          </div>
+        </article>
+
+        <article class="info-card expense-card">
+          <div class="card-icon" aria-hidden="true">R$</div>
+          <div>
+            <h2>Última conta</h2>
+            <p id="last-expense" class="card-value">Ainda não há conta</p>
+            <p id="last-expense-month" class="card-description">Registre sua primeira conta.</p>
+          </div>
+        </article>
+      </div>
+
+      <div class="quick-actions" aria-labelledby="quick-actions-title">
+        <h2 id="quick-actions-title">O que você quer fazer?</h2>
+        <div class="action-grid">
+          <button class="action-button primary-action" type="button" data-go-to="register">
+            <span class="action-icon" aria-hidden="true">＋</span>
+            <span>Registrar conta</span>
+          </button>
+          <button class="action-button secondary-action" type="button" data-go-to="calculator">
+            <span class="action-icon" aria-hidden="true">▣</span>
+            <span>Calcular aparelho</span>
+          </button>
+        </div>
+      </div>
+
+      <section class="history-panel" aria-labelledby="history-title">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Seus registros</p>
+            <h2 id="history-title">Histórico de contas</h2>
+          </div>
+          <span id="history-count" class="count-badge">0 contas</span>
+        </div>
+        <p id="empty-history" class="empty-state">Suas contas salvas aparecerão aqui.</p>
+        <div id="history-list" class="history-list" aria-live="polite"></div>
+      </section>
+    </section>
+
+    <section id="register" class="app-section" aria-labelledby="register-title" hidden>
+      <div class="section-heading">
+        <p class="eyebrow">Registro mensal</p>
+        <h1 id="register-title">Registrar conta de luz</h1>
+        <p class="intro-text">Digite os dados exatamente como aparecem na sua conta.</p>
+      </div>
+
+      <form id="bill-form" class="form-card" novalidate>
+        <input id="bill-id" name="id" type="hidden">
+
+        <div class="form-field">
+          <label for="bill-month">Mês da conta</label>
+          <input id="bill-month" name="month" type="month" required aria-describedby="month-help month-error">
+          <p id="month-help" class="field-help">Escolha o mês de referência.</p>
+          <p id="month-error" class="field-error" role="alert"></p>
+        </div>
+
+        <div class="form-field">
+          <label for="bill-consumption">Consumo <span class="unit">(kWh)</span></label>
+          <input id="bill-consumption" name="consumption" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="Ex.: 150" required aria-describedby="consumption-help consumption-error">
+          <p id="consumption-help" class="field-help">Esse número aparece na sua conta de luz.</p>
+          <p id="consumption-error" class="field-error" role="alert"></p>
+        </div>
+
+        <div class="form-field">
+          <label for="bill-amount">Valor da fatura <span class="unit">(R$)</span></label>
+          <div class="currency-input">
+            <span aria-hidden="true">R$</span>
+            <input id="bill-amount" name="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="Ex.: 120,50" required aria-describedby="amount-help amount-error">
+          </div>
+          <p id="amount-help" class="field-help">Informe o total a pagar.</p>
+          <p id="amount-error" class="field-error" role="alert"></p>
+        </div>
+
+        <div id="form-message" class="form-message" role="status" aria-live="polite"></div>
+        <button class="button button-primary button-full" type="submit"><span aria-hidden="true">✓</span> Salvar conta</button>
+        <button id="cancel-edit" class="button button-link button-full" type="button" hidden>Cancelar edição</button>
+      </form>
+    </section>
+
+    <section id="calculator" class="app-section" aria-labelledby="calculator-title" hidden>
+      <div class="section-heading">
+        <p class="eyebrow">Estimativa simples</p>
+        <h1 id="calculator-title">Quanto um aparelho gasta?</h1>
+        <p class="intro-text">Faça uma estimativa do gasto mensal de um aparelho da sua casa.</p>
+      </div>
+
+      <form id="calculator-form" class="form-card" novalidate>
+        <div class="form-field">
+          <label for="appliance-power">Potência do aparelho <span class="unit">(Watts)</span></label>
+          <input id="appliance-power" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="Ex.: 100" required>
+          <p class="field-help">Você encontra esse número na etiqueta do aparelho.</p>
+        </div>
+
+        <div class="form-field">
+          <label for="daily-hours">Horas de uso por dia</label>
+          <input id="daily-hours" type="number" min="0.01" max="24" step="0.01" inputmode="decimal" placeholder="Ex.: 5" required>
+        </div>
+
+        <div class="form-field">
+          <label for="monthly-days">Dias de uso no mês</label>
+          <input id="monthly-days" type="number" min="1" max="31" step="1" inputmode="numeric" placeholder="Ex.: 30" required>
+        </div>
+
+        <div class="form-field">
+          <label for="kwh-price">Preço do kWh <span class="unit">(R$)</span></label>
+          <div class="currency-input">
+            <span aria-hidden="true">R$</span>
+            <input id="kwh-price" type="number" min="0.01" step="0.0001" inputmode="decimal" placeholder="Ex.: 0,90" value="0.90" required>
+          </div>
+          <p class="field-help">Use o preço informado na sua conta para uma estimativa melhor.</p>
+        </div>
+
+        <button class="button button-secondary button-full" type="submit"><span aria-hidden="true">=</span> Calcular gasto</button>
+        <div id="calculator-result" class="calculator-result" role="status" aria-live="polite" hidden></div>
+      </form>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Navegação principal">
+    <div class="container bottom-nav-inner">
+      <button class="nav-button active" type="button" data-section="dashboard" aria-current="page">
+        <span class="nav-icon" aria-hidden="true">⌂</span>
+        <span>Início</span>
+      </button>
+      <button class="nav-button" type="button" data-section="register">
+        <span class="nav-icon" aria-hidden="true">＋</span>
+        <span>Registrar</span>
+      </button>
+      <button class="nav-button" type="button" data-section="calculator">
+        <span class="nav-icon" aria-hidden="true">▣</span>
+        <span>Calcular</span>
+      </button>
+    </div>
+  </nav>
+</body>
+</html>
