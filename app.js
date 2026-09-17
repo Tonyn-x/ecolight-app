@@ -10,7 +10,7 @@
   'use strict';
 
   const STORAGE_KEY = 'ecolight-bills-v1';
-  const sections = ['dashboard', 'register', 'calculator'];
+  const sections = ['dashboard', 'register', 'calculator', 'tips'];
   // Sem backend nesta primeira versão, a bandeira é uma configuração explícita
   // e fácil de substituir quando a fonte oficial estiver disponível.
   const currentTariff = {
@@ -18,6 +18,7 @@
     description: 'Sem cobrança extra na tarifa.'
   };
   let bills = [];
+  let consumptionChart = null; // referência à instância atual do Chart.js, para destruir antes de recriar
 
   const elements = {
     sections: Object.fromEntries(sections.map((section) => [section, document.getElementById(section)])),
@@ -33,6 +34,9 @@
     historyList: document.getElementById('history-list'),
     emptyHistory: document.getElementById('empty-history'),
     historyCount: document.getElementById('history-count'),
+    chartContainer: document.getElementById('chart-container'),
+    chartCanvas: document.getElementById('graficoConsumo'),
+    carouselTrack: document.getElementById('tips-carousel'),
     tariffName: document.getElementById('tariff-name'),
     tariffDescription: document.getElementById('tariff-description'),
     lastExpense: document.getElementById('last-expense'),
@@ -58,8 +62,10 @@
     bindNavigationEvents();
     bindBillFormEvents();
     bindCalculatorEvents();
+    bindCarouselEvents();
     renderDashboard();
     renderHistory();
+    renderConsumptionChart();
     showSection(getInitialSection());
   }
 
@@ -135,6 +141,35 @@
     elements.calculatorForm.addEventListener('submit', handleCalculatorSubmit);
   }
 
+  function bindCarouselEvents() {
+    if (!elements.carouselTrack) {
+      return;
+    }
+
+    document.querySelectorAll('[data-carousel-prev]').forEach((button) => {
+      button.addEventListener('click', () => scrollCarousel(-1));
+    });
+
+    document.querySelectorAll('[data-carousel-next]').forEach((button) => {
+      button.addEventListener('click', () => scrollCarousel(1));
+    });
+  }
+
+  /** Rola o carrossel de dicas um card por vez, na direção indicada (-1 = anterior, 1 = próximo). */
+  function scrollCarousel(direction) {
+    const track = elements.carouselTrack;
+    const firstCard = track && track.querySelector('.tip-card');
+    if (!track || !firstCard) {
+      return;
+    }
+
+    const trackStyle = window.getComputedStyle(track);
+    const gap = Number.parseFloat(trackStyle.columnGap || trackStyle.gap) || 0;
+    const scrollAmount = firstCard.getBoundingClientRect().width + gap;
+
+    track.scrollBy({ left: scrollAmount * direction, behavior: 'smooth' });
+  }
+
   function getInitialSection() {
     return getSectionFromHash() || 'dashboard';
   }
@@ -205,6 +240,7 @@
 
     renderDashboard();
     renderHistory();
+    renderConsumptionChart();
     showFormSuccess(editingIndex >= 0 ? 'Conta atualizada com sucesso.' : 'Conta salva com sucesso.');
     resetBillForm(false);
     announce('Conta salva com sucesso.');
@@ -299,6 +335,7 @@
     if (persistBills()) {
       renderDashboard();
       renderHistory();
+      renderConsumptionChart();
       announce('Conta excluída.');
     }
   }
@@ -356,6 +393,87 @@
       item.querySelector('[data-edit-id]').addEventListener('click', () => startEditingBill(bill.id));
       item.querySelector('[data-delete-id]').addEventListener('click', () => deleteBill(bill.id));
       elements.historyList.appendChild(item);
+    });
+  }
+
+  /**
+   * Desenha o gráfico de consumo (kWh) e gasto (R$) por mês.
+   * Sempre destrói a instância anterior antes de criar uma nova, para evitar
+   * o erro "Canvas is already in use" ao salvar ou excluir uma conta.
+   */
+  function renderConsumptionChart() {
+    if (!elements.chartCanvas || !elements.chartContainer) {
+      return;
+    }
+
+    // O CDN pode falhar (sem internet, bloqueio de script) e o app não pode quebrar por isso.
+    if (typeof Chart === 'undefined') {
+      elements.chartContainer.hidden = true;
+      return;
+    }
+
+    if (!Array.isArray(bills) || bills.length === 0) {
+      elements.chartContainer.hidden = true;
+      return;
+    }
+
+    elements.chartContainer.hidden = false;
+
+    const billsByMonth = [...bills].sort((first, second) => first.month.localeCompare(second.month));
+    const labels = billsByMonth.map((bill) => formatMonth(bill.month));
+    const consumptionData = billsByMonth.map((bill) => bill.consumption);
+    const amountData = billsByMonth.map((bill) => bill.amount);
+
+    if (consumptionChart) {
+      consumptionChart.destroy();
+    }
+
+    consumptionChart = new Chart(elements.chartCanvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Consumo (kWh)',
+            data: consumptionData,
+            borderColor: '#197a4a',
+            backgroundColor: '#197a4a',
+            yAxisID: 'yConsumption',
+            tension: 0.3
+          },
+          {
+            label: 'Valor (R$)',
+            data: amountData,
+            borderColor: '#0b6fa4',
+            backgroundColor: '#0b6fa4',
+            yAxisID: 'yAmount',
+            tension: 0.3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
+        scales: {
+          yConsumption: {
+            type: 'linear',
+            position: 'left',
+            beginAtZero: true,
+            title: { display: true, text: 'kWh' }
+          },
+          yAmount: {
+            type: 'linear',
+            position: 'right',
+            beginAtZero: true,
+            title: { display: true, text: 'R$' },
+            grid: { drawOnChartArea: false }
+          }
+        }
+      }
     });
   }
 

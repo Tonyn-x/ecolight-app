@@ -286,6 +286,24 @@ h2 {
   white-space: nowrap;
 }
 
+.chart-container {
+  position: relative;
+  width: 100%;
+  height: 260px;
+  margin-bottom: 32px;
+  overflow: hidden;
+}
+
+.chart-container canvas {
+  max-width: 100%;
+}
+
+.chart-container h3 {
+  margin: 0 0 10px;
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+
 .empty-state {
   margin-bottom: 0;
   padding: 18px;
@@ -345,6 +363,80 @@ h2 {
   background: #fff;
   color: var(--green-800);
   font-weight: 700;
+}
+
+.carousel-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.carousel-track {
+  display: flex;
+  gap: 14px;
+  flex: 1;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  padding: 4px 4px 12px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+.tip-card {
+  flex: 0 0 78%;
+  max-width: 320px;
+  scroll-snap-align: center;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.tip-icon {
+  margin-bottom: 8px;
+  font-size: 2rem;
+}
+
+.tip-card h2 {
+  margin: 0 0 8px;
+  color: var(--green-800);
+}
+
+.tip-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.carousel-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--green-800);
+  font-size: 1.4rem;
+  line-height: 1;
+  box-shadow: var(--shadow);
+}
+
+.carousel-arrow:hover {
+  background: var(--green-100);
+}
+
+@media (max-width: 520px) {
+  .tip-card {
+    flex-basis: 85%;
+  }
 }
 
 .small-button.delete-button {
@@ -499,7 +591,7 @@ h2 {
 
 .bottom-nav-inner {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
 }
 
 .nav-button {
@@ -579,7 +671,7 @@ h2 {
   .bottom-nav-inner {
     width: min(100% - 32px, 960px);
     margin: 0 auto;
-    grid-template-columns: repeat(3, minmax(120px, 180px));
+    grid-template-columns: repeat(4, minmax(120px, 180px));
     justify-content: start;
     gap: 8px;
   }

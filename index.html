@@ -7,6 +7,7 @@
   <meta name="description" content="EcoLight: acompanhe o consumo e os gastos de energia da sua casa.">
   <title>EcoLight | Consumo de energia</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -71,6 +72,10 @@
             <h2 id="history-title">Histórico de contas</h2>
           </div>
           <span id="history-count" class="count-badge">0 contas</span>
+        </div>
+        <div id="chart-container" class="chart-container" hidden>
+          <h3 id="chart-title">Consumo e gasto por mês</h3>
+          <canvas id="graficoConsumo" role="img" aria-labelledby="chart-title"></canvas>
         </div>
         <p id="empty-history" class="empty-state">Suas contas salvas aparecerão aqui.</p>
         <div id="history-list" class="history-list" aria-live="polite"></div>
@@ -154,6 +159,77 @@
         <div id="calculator-result" class="calculator-result" role="status" aria-live="polite" hidden></div>
       </form>
     </section>
+
+    <section id="tips" class="app-section" aria-labelledby="tips-title" hidden>
+      <div class="section-heading">
+        <p class="eyebrow">Economize energia</p>
+        <h1 id="tips-title">Dicas de economia</h1>
+        <p class="intro-text">Pequenas mudanças que ajudam a reduzir sua conta de luz.</p>
+      </div>
+
+      <div class="carousel-wrapper">
+        <button class="carousel-arrow carousel-arrow-prev" type="button" data-carousel-prev aria-label="Ver dica anterior">
+          <span aria-hidden="true">‹</span>
+        </button>
+
+        <div class="carousel-track" id="tips-carousel" tabindex="0" aria-label="Dicas de economia de energia, deslize para o lado para ver mais">
+          <article class="tip-card">
+            <div class="tip-icon" aria-hidden="true">🚿</div>
+            <h2>Chuveiro</h2>
+            <p>Banhos mais curtos economizam energia todos os dias. Sempre que possível, use o modo verão.</p>
+          </article>
+          <article class="tip-card">
+            <div class="tip-icon" aria-hidden="true">👕</div>
+            <h2>Ferro de passar</h2>
+            <p>Junte as roupas e passe todas de uma vez. Ligar e desligar o ferro várias vezes gasta mais energia.</p>
+          </article>
+          <article class="tip-card">
+            <div class="tip-icon" aria-hidden="true">🧊</div>
+            <h2>Geladeira</h2>
+            <p>Evite deixar a porta aberta e não guarde comida quente. Mantenha a borracha da porta limpa e sem furos.</p>
+          </article>
+          <article class="tip-card">
+            <div class="tip-icon" aria-hidden="true">🌀</div>
+            <h2>Máquina de lavar</h2>
+            <p>Só ligue com a carga completa. Poucas roupas em várias lavagens gastam mais água e energia.</p>
+          </article>
+          <article class="tip-card">
+            <div class="tip-icon" aria-hidden="true">💡</div>
+            <h2>Lâmpadas</h2>
+            <p>Troque lâmpadas antigas por modelos de LED. Elas gastam bem menos energia e duram muito mais tempo.</p>
+          </article>
+          <article class="tip-card">
+            <div class="tip-icon" aria-hidden="true">❄️</div>
+            <h2>Ar-condicionado</h2>
+            <p>Mantenha a temperatura em 23°C e limpe os filtros regularmente. Portas e janelas fechadas evitam desperdício.</p>
+          </article>
+          <article class="tip-card">
+            <div class="tip-icon" aria-hidden="true">🔌</div>
+            <h2>Aparelhos em stand-by</h2>
+            <p>TV, micro-ondas e outros aparelhos continuam gastando energia mesmo desligados. Tire da tomada quando não estiver usando.</p>
+          </article>
+          <article class="tip-card">
+            <div class="tip-icon" aria-hidden="true">💻</div>
+            <h2>Computador</h2>
+            <p>Ative o modo de economia de energia e desligue o monitor quando não estiver em uso por um tempo maior.</p>
+          </article>
+          <article class="tip-card">
+            <div class="tip-icon" aria-hidden="true">🔋</div>
+            <h2>Carregador de celular</h2>
+            <p>Desconecte o carregador da tomada assim que a bateria estiver cheia. Carregador ligado à toa também gasta energia.</p>
+          </article>
+          <article class="tip-card">
+            <div class="tip-icon" aria-hidden="true">☀️</div>
+            <h2>Luz natural</h2>
+            <p>Abra cortinas e janelas durante o dia para aproveitar a luz do sol e deixar as lâmpadas desligadas por mais tempo.</p>
+          </article>
+        </div>
+
+        <button class="carousel-arrow carousel-arrow-next" type="button" data-carousel-next aria-label="Ver próxima dica">
+          <span aria-hidden="true">›</span>
+        </button>
+      </div>
+    </section>
   </main>
 
   <nav class="bottom-nav" aria-label="Navegação principal">
@@ -169,6 +245,10 @@
       <button class="nav-button" type="button" data-section="calculator">
         <span class="nav-icon" aria-hidden="true">▣</span>
         <span>Calcular</span>
+      </button>
+      <button class="nav-button" type="button" data-section="tips">
+        <span class="nav-icon" aria-hidden="true">💡</span>
+        <span>Dicas</span>
       </button>
     </div>
   </nav>
